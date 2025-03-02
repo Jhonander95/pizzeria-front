@@ -1,0 +1,44 @@
+/* filepath: /C:/Users/Jhonanderson/pizzeria/src/app/features/products/product-list/product-list.component.scss */
+.container {
+  background-color: #f8f9fa; /* Fondo claro */
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.card {
+  background-color: #ffffff; /* Fondo blanco para las tarjetas */
+  color: #000000; /* Texto negro */
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+}
+
+.card-header {
+  background-color: #f8f9fa; /* Fondo claro para el encabezado */
+  color: #000000; /* Texto negro */
+}
+
+.card-body {
+  color: #000000; /* Contenido negro */
+}
+
+.btn-primary {
+  background-color: #007bff; /* Botón azul */
+  border-color: #007bff;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3; /* Botón azul oscuro al pasar el ratón */
+  border-color: #0056b3;
+}
+
+.btn-danger {
+  background-color: #dc3545; /* Botón rojo */
+  border-color: #dc3545;
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background-color: #c82333; /* Botón rojo oscuro al pasar el ratón */
+  border-color: #c82333;
+}

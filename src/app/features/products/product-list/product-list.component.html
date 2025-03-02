@@ -1,50 +1,61 @@
-<div class="container mt-4">
+<div class="container mt-4 bg-light p-4 rounded">
   <div class="row g-4">
 
     <div class="col-8">
 
       <div class="row">
         <div *ngFor="let product of products" class="col-12 col-md-6 col-lg-4">
-          <p-card class="shadow-sm m-3 ">
-            <!-- <ng-template pTemplate="header">
-              <img [src]="productService.urlImage(product)" class="product-image" alt="Imagen de {{ product.name }}" />
-            </ng-template> -->
-            <ng-template pTemplate="title">
+          <div class="card shadow-sm m-3">
+            <div class="card-header">
               {{ product.name }}
-            </ng-template>
-            <ng-template pTemplate="content">
-              <p class="text-primary fw-bold fs-5">${{ product.price }}</p>
-              <button pButton label="Agregar al carrito" icon="pi pi-shopping-cart" class="w-100" (click)="addToCart(product)" ></button>
-            </ng-template>
-          </p-card>
+            </div>
+            <div class="card-body">
+              <p class="card-text text-primary fw-bold fs-5">${{ product.price | number:'1.0-0' }}</p>
+              <button class="btn btn-primary w-100" (click)="addToCart(product)">
+                <i class="pi pi-shopping-cart"></i> Agregar al carrito
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
     </div>
 
     <div class="col-4">
-      <p-card class="shadow-sm">
-        <ng-template pTemplate="title">
+      <div class="card shadow-sm">
+        <div class="card-header">
           Carrito de compras
-        </ng-template>
-        <ng-template pTemplate="content">
+        </div>
+        <div class="card-body">
           <div *ngFor="let item of cart" class="cart-item">
-            <p-card class="shadow-sm m-3">
-              <ng-template pTemplate="title">
+            <div class="card shadow-sm m-3">
+              <div class="card-header">
                 {{ item.product.name }}
-              </ng-template>
-              <ng-template pTemplate="content">
-                <p class="text-primary fw-bold fs-5">${{ item.product.price }}</p>
-                <p>Cantidad: {{ item.quantity }}</p>
-                <p>Subtotal: ${{ item.product.price * item.quantity }}</p>
-                <button pButton label="Eliminar" icon="pi pi-times" class="w-100" (click)="removeFromCart(item.product)"></button>
-              </ng-template>
-            </p-card>
+              </div>
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <p class="card-text text-primary fw-bold fs-5 mb-0">${{ item.product.price | number:'1.0-0' }}</p>
+                  <div class="input-group mb-3">
+                    <button class="btn btn-outline-secondary" type="button" (click)="decrementQuantity(item.product)">-</button>
+                    <input type="text" class="form-control text-center" [value]="item.quantity" readonly>
+                    <button class="btn btn-outline-secondary" type="button" (click)="incrementQuantity(item.product)">+</button>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <p class="card-text mb-0">Subtotal: ${{ (item.product.price * item.quantity) | number:'1.0-0' }}</p>
+                  <button class="btn btn-danger btn-sm" (click)="removeFromCart(item.product)">
+                    <i class="pi pi-times"></i>Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-          <p class="text-primary fw-bold fs-5">Total: ${{ total }}</p>
-          <button pButton label="Comprar" icon="pi pi-shopping-cart" class="w-100 mt-3"></button>
-        </ng-template>
-      </p-card>
+          <p class="text-primary fw-bold fs-5">Total: ${{ total | number:'1.0-0' }}</p>
+          <button class="btn btn-primary w-100 mt-3" (click)="buy()">
+            <i class="pi pi-shopping-cart"></i> Comprar
+          </button>
+        </div>
+      </div>
     </div>
     
   </div>
