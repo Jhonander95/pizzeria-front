@@ -6,6 +6,7 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { ListboxModule } from 'primeng/listbox';
 import { OrderService } from '../../../core/services/order.service';
+import { PrintService } from '../../../core/services/print.service';
 
 export interface CartItem {
   product: Product;
@@ -27,7 +28,8 @@ export class ProductListComponent implements OnInit {
 
   constructor(
     public productService: ProductService,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private printService: PrintService
   ) {}
 
   ngOnInit() {
@@ -84,12 +86,15 @@ export class ProductListComponent implements OnInit {
   buy() {
     this.orderService.createPurchase(this.cart).subscribe(response => {
       console.log('Compra creada:', response);
-      // Aquí puedes agregar lógica adicional, como limpiar el carrito o mostrar un mensaje de éxito
+      
+      // Imprimir el recibo
+      this.printService.printReceipt(this.cart, this.total, response.id);
+      
+      // Limpiar el carrito
       this.cart = [];
       this.total = 0;
     }, error => {
       console.error('Error al crear la compra:', error);
-      // Aquí puedes agregar lógica adicional para manejar el error
     });
   }
 
