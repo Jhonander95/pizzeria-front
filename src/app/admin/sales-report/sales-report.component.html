@@ -1,1 +1,73 @@
-<p>sales-report works!</p>
+<div class="container mt-4 bg-light p-4 rounded">
+  <!-- Filtros -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">Reporte de Ventas</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <label class="form-label">Rango de fechas</label>
+          <p-calendar [(ngModel)]="rangeDates" 
+                     selectionMode="range"
+                     [showIcon]="true"
+                     (onSelect)="onDateChange()"
+                     [readonlyInput]="true"
+                     styleClass="w-100">
+          </p-calendar>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumen -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Total Ventas:</h6>
+            <span class="h4 mb-0 text-success">
+              {{ totalAmount | currency:'COP':'symbol-narrow':'1.0-0' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de ventas -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <p-table [value]="sales" 
+               [paginator]="true" 
+               [rows]="10" 
+               [loading]="loading"
+               styleClass="p-datatable-striped">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Productos</th>
+            <th>Total</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-sale>
+          <tr>
+            <td>{{ sale.id }}</td>
+            <td>{{ sale.created_at | date:'medium' }}</td>
+            <td>
+              <ul class="list-unstyled mb-0">
+                <li *ngFor="let item of sale.products">
+                  {{ item.quantity }}x {{ item.product.name }} 
+                  (${{ item.product.price | number:'1.0-0' }})
+                </li>
+              </ul>
+            </td>
+            <td>{{ sale.total | currency:'COP':'symbol-narrow':'1.0-0' }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>

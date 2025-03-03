@@ -1,0 +1,80 @@
+:host ::ng-deep {
+  .p-calendar {
+    width: 100%;
+    
+    .p-inputtext {
+      background-color: #ffffff !important;
+      color: #495057 !important;
+    }
+
+    .p-datepicker {
+      background-color: #ffffff !important;
+      
+      .p-datepicker-header {
+        background-color: #f8f9fa !important;
+        color: #495057;
+      }
+
+      table {
+        td {
+          padding: 0.5rem;
+          
+          > span {
+            background-color: #ffffff !important;
+            color: #495057 !important;
+
+            &.p-highlight {
+              background-color: #007bff !important;
+              color: #ffffff !important;
+            }
+
+            &:hover {
+              background-color: #e9ecef !important;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .p-datatable {
+    background-color: #ffffff;
+    
+    .p-datatable-header {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+    }
+
+    .p-datatable-thead > tr > th {
+      background-color: #f8f9fa !important;
+      color: #495057;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .p-datatable-tbody > tr {
+      background-color: #ffffff !important;
+      
+      &:nth-child(even) {
+        background-color: #f8f9fa !important;
+      }
+
+      > td {
+        color: #495057;
+        background-color: inherit !important;
+      }
+
+      &:hover {
+        background-color: #e9ecef !important;
+      }
+    }
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    
+    li {
+      padding: 2px 0;
+    }
+  }
+}
