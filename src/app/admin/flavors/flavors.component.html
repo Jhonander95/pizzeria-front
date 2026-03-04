@@ -1,0 +1,77 @@
+<div class="container mt-4 bg-light p-4 rounded">
+  <!-- Formulario -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">{{ textButton }}</h5>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="flavorForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Nombre</label>
+            <input pInputText class="form-control shadow-sm" formControlName="name" placeholder="Ej: Pepperoni">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Descripción</label>
+            <input pInputText class="form-control shadow-sm" formControlName="description" placeholder="Ej: Pepperoni clásico">
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <button pButton type="submit" [label]="textButton" icon="pi pi-save"
+                  class="btn-primary shadow-sm"
+                  [disabled]="flavorForm.invalid"></button>
+          <button pButton type="button" label="Cancelar" icon="pi pi-times"
+                  class="btn-danger shadow-sm" (click)="resetForm()"></button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabla de sabores -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <p-table [value]="flavors" [paginator]="true" [rows]="10"
+               styleClass="p-datatable-striped shadow-sm">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-flavor>
+          <tr>
+            <td>{{ flavor.id }}</td>
+            <td>{{ flavor.name }}</td>
+            <td>{{ flavor.description }}</td>
+            <td>
+              <p-tag [value]="flavor.status ? 'Activo' : 'Inactivo'"
+                     [severity]="flavor.status ? 'success' : 'danger'"></p-tag>
+            </td>
+            <td>
+              <div class="d-flex gap-2">
+                <button pButton icon="pi pi-pencil"
+                        class="p-button-warning p-button-sm shadow-sm"
+                        (click)="editFlavor(flavor)"></button>
+                <button pButton icon="pi pi-ban"
+                        class="p-button-danger p-button-sm shadow-sm"
+                        (click)="deleteFlavor(flavor.id)"
+                        pTooltip="Desactivar sabor"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5" class="text-center">No hay sabores registrados.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<p-toast></p-toast>
+<p-confirmDialog header="Confirmación" icon="pi pi-exclamation-triangle"></p-confirmDialog>
