@@ -59,4 +59,12 @@ export class SalesService {
   addProductsToOrder(orderId: number, payload: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/${orderId}/products`, payload);
   }
+
+  getOrdersByDateRange(startDate: Date, endDate: Date): Observable<any[]> {
+    const params = {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString()
+    };
+    return this.http.get<any[]>(`${this.apiUrl}`, { params });
+  }
 }

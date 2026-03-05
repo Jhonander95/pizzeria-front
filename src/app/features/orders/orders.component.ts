@@ -17,6 +17,7 @@ import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { CalendarModule } from 'primeng/calendar';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 @Component({
@@ -32,7 +33,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
     TagModule,
     DialogModule,
     MultiSelectModule,
-    SelectButtonModule
+    SelectButtonModule,
+    CalendarModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './orders.component.html',
@@ -53,6 +55,10 @@ export class OrdersComponent implements OnInit, OnDestroy {
     { label: 'Pagadas', value: 'paid' }
   ];
 
+  selectedDate: Date = new Date();
+  isToday = true;
+  today: Date = new Date();
+
   // Modal agregar productos
   showAddProductsDialog = false;
   selectedOrder: any = null;
@@ -70,10 +76,40 @@ export class OrdersComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.loadTodayOrders();
+    this.loadOrdersByDate();
     this.loadProducts();
     this.loadFlavors();
     this.startPolling();
+  }
+
+  onDateChange() {
+    this.checkIfToday();
+    this.loadOrdersByDate();
+  }
+
+  private checkIfToday() {
+    const today = new Date();
+    this.isToday = this.selectedDate.toDateString() === today.toDateString();
+  }
+
+  loadOrdersByDate() {
+    this.loading = true;
+    const startOfDay = new Date(this.selectedDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(this.selectedDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    this.salesService.getOrdersByDateRange(startOfDay, endOfDay).subscribe({
+      next: (data) => {
+        this.allOrders = data;
+        this.applyFilter();
+        this.loading = false;
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al cargar órdenes' });
+        this.loading = false;
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -93,8 +129,15 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   private refreshOrders() {
-    this.salesService.getTodayOrders().subscribe({
-      next: (data) => {
+    if (!this.isToday) return; // Solo polling si es el día actual
+
+    const startOfDay = new Date(this.selectedDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(this.selectedDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    this.salesService.getOrdersByDateRange(startOfDay, endOfDay).subscribe({
+      next: (data: any[]) => {
         const newCount = data.length;
         const oldCount = this.allOrders.length;
         this.allOrders = data;
@@ -142,21 +185,6 @@ export class OrdersComponent implements OnInit, OnDestroy {
     }, 150);
   }
 
-  loadTodayOrders() {
-    this.loading = true;
-    this.salesService.getTodayOrders().subscribe({
-      next: (data) => {
-        this.allOrders = data;
-        this.applyFilter();
-        this.loading = false;
-      },
-      error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al cargar órdenes' });
-        this.loading = false;
-      }
-    });
-  }
-
   loadProducts() {
     this.productService.getProducts().subscribe(data => this.products = data);
   }
@@ -195,7 +223,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Pagado', detail: `Orden #${order.id} pagada` });
         this.printOrderReceipt(order);
-        this.loadTodayOrders();
+        this.loadOrdersByDate();
       },
       error: () => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: `Error al pagar` });
@@ -267,7 +295,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Agregado', detail: 'Productos agregados a la orden' });
         this.showAddProductsDialog = false;
-        this.loadTodayOrders();
+        this.loadOrdersByDate();
       },
       error: () => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron agregar los productos' });

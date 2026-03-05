@@ -20,6 +20,8 @@
     "@angular/router": "^19.2.0",
     "@primeng/themes": "^19.0.9",
     "bootstrap": "^5.3.3",
+    "jspdf": "^4.2.0",
+    "jspdf-autotable": "^5.0.7",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^19.0.9",

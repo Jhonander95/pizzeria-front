@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SalesService } from '../../core/services/sales.service';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 
 // PrimeNG imports
@@ -56,10 +58,9 @@ export class SalesReportComponent implements OnInit {
   constructor(private salesService: SalesService) {}
 
   ngOnInit() {
-    // Establecer fecha inicial como el primer día del mes actual
+    // Establecer fecha inicial como el día actual
     const today = new Date();
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    this.rangeDates = [firstDay, today];
+    this.rangeDates = [today, today];
     this.loadSales();
   }
 
@@ -98,5 +99,74 @@ export class SalesReportComponent implements OnInit {
     if (this.rangeDates[0] && this.rangeDates[1]) {
       this.loadSales();
     }
+  }
+
+  exportToPDF() {
+    if (this.sales.length === 0) {
+      return;
+    }
+
+    const doc = new jsPDF();
+    const company = this.getCompanyData();
+    const companyName = company?.name || 'Pizzería';
+
+    // Título
+    doc.setFontSize(18);
+    doc.text(companyName.toUpperCase(), 105, 15, { align: 'center' });
+    
+    doc.setFontSize(14);
+    doc.text('Reporte de Ventas', 105, 25, { align: 'center' });
+
+    // Rango de fechas
+    const startDate = this.rangeDates[0].toLocaleDateString('es-CO');
+    const endDate = this.rangeDates[1].toLocaleDateString('es-CO');
+    doc.setFontSize(10);
+    doc.text(`Período: ${startDate} - ${endDate}`, 105, 33, { align: 'center' });
+
+    // Tabla de ventas
+    const tableData = this.sales.map(sale => [
+      sale.id.toString(),
+      new Date(sale.created_at).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' }),
+      sale.products.map(p => `${p.quantity}x ${p.product.name}`).join(', '),
+      this.formatCurrency(sale.total)
+    ]);
+
+    autoTable(doc, {
+      startY: 40,
+      head: [['ID', 'Fecha', 'Productos', 'Total']],
+      body: tableData,
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [66, 66, 66] },
+      columnStyles: {
+        0: { cellWidth: 15 },
+        1: { cellWidth: 35 },
+        2: { cellWidth: 100 },
+        3: { cellWidth: 30, halign: 'right' }
+      }
+    });
+
+    // Total general
+    const finalY = (doc as any).lastAutoTable.finalY + 10;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`TOTAL VENTAS: ${this.formatCurrency(this.totalAmount)}`, 190, finalY, { align: 'right' });
+    doc.text(`Total órdenes: ${this.sales.length}`, 14, finalY);
+
+    // Descargar
+    const fileName = `ventas_${startDate.replace(/\//g, '-')}_${endDate.replace(/\//g, '-')}.pdf`;
+    doc.save(fileName);
+  }
+
+  private getCompanyData(): any {
+    try {
+      const data = localStorage.getItem('companyData');
+      return data ? JSON.parse(data) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private formatCurrency(value: number): string {
+    return '$' + value.toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   }
 }
