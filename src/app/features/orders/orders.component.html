@@ -1,0 +1,143 @@
+<nav class="navbar navbar-dark bg-dark px-4 mb-3">
+  <span class="navbar-brand fw-bold"><i class="pi pi-pizza me-2"></i>Pizzería</span>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-light" routerLink="/products">
+      <i class="pi pi-home me-1"></i>Productos
+    </a>
+    <a class="btn btn-warning" routerLink="/orders">
+      <i class="pi pi-list me-1"></i>Órdenes
+    </a>
+  </div>
+</nav>
+
+<div class="container-fluid p-4">
+  <!-- Header con filtros -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <h3 class="mb-0"><i class="pi pi-list me-2"></i>Órdenes del Día</h3>
+    <div class="d-flex gap-3 align-items-center">
+      <p-selectButton [options]="statusOptions" [(ngModel)]="statusFilter" 
+                      (onChange)="onFilterChange()" optionLabel="label" optionValue="value">
+      </p-selectButton>
+      <button class="btn btn-outline-dark btn-lg" (click)="loadTodayOrders()">
+        <i class="pi pi-refresh"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <i class="pi pi-spin pi-spinner" style="font-size: 3rem;"></i>
+    <p class="mt-3">Cargando órdenes...</p>
+  </div>
+
+  <!-- Grid de órdenes -->
+  <div class="row g-4" *ngIf="!loading">
+    <div *ngFor="let order of filteredOrders" class="col-12 col-md-6 col-lg-4">
+      <div class="card shadow h-100 order-card" [class.order-open]="isOpen(order)" [class.order-paid]="!isOpen(order)">
+        <div class="card-header d-flex justify-content-between align-items-center py-3">
+          <span class="fs-4 fw-bold">#{{ order.id }}</span>
+          <p-tag [value]="isOpen(order) ? 'Abierta' : 'Pagada'" 
+                 [severity]="isOpen(order) ? 'warn' : 'success'"></p-tag>
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-2">
+            <i class="pi pi-clock me-1"></i>{{ order.created_at | date:'HH:mm' }}
+          </p>
+          
+          <!-- Productos -->
+          <div class="products-list mb-3">
+            <div *ngFor="let item of order.products" class="product-item py-2 border-bottom">
+              <div class="d-flex justify-content-between">
+                <span class="fw-semibold">{{ item.quantity }}x {{ item.product?.name }}</span>
+                <span class="text-muted">{{ (item.product?.price * item.quantity) | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
+              </div>
+              <small *ngIf="item.flavors && item.flavors.length > 0" class="text-secondary">
+                <i class="pi pi-star-fill me-1"></i>{{ getFlavorNames(item.flavors) }}
+              </small>
+            </div>
+          </div>
+
+          <!-- Total -->
+          <div class="total-section bg-light p-3 rounded text-center">
+            <span class="fs-5">Total:</span>
+            <span class="fs-3 fw-bold text-success ms-2">{{ order.total | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="card-footer bg-white py-3" *ngIf="isOpen(order)">
+          <div class="d-grid gap-2">
+            <button class="btn btn-success btn-lg" (click)="confirmPay(order)">
+              <i class="pi pi-credit-card me-2"></i>PAGAR
+            </button>
+            <button class="btn btn-outline-primary btn-lg" (click)="openAddProducts(order)">
+              <i class="pi pi-plus me-2"></i>Agregar Productos
+            </button>
+          </div>
+        </div>
+        <div class="card-footer bg-success text-white text-center py-3" *ngIf="!isOpen(order)">
+          <i class="pi pi-check-circle me-2"></i>Pagada a las {{ order.paid_at | date:'HH:mm' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Sin órdenes -->
+    <div *ngIf="filteredOrders.length === 0" class="col-12 text-center py-5">
+      <i class="pi pi-inbox" style="font-size: 4rem; color: #ccc;"></i>
+      <p class="mt-3 fs-5 text-muted">No hay órdenes para mostrar</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Agregar Productos -->
+<p-dialog header="Agregar Productos a Orden #{{selectedOrder?.id}}" [(visible)]="showAddProductsDialog" 
+          [modal]="true" [style]="{width: '90vw', maxWidth: '600px', minHeight: '400px'}" 
+          [contentStyle]="{overflow: 'visible'}" [draggable]="false">
+  <div class="p-3">
+    <div *ngFor="let item of newItems; let i = index" class="card mb-3 p-3">
+      <div class="row g-3 align-items-end">
+        <div class="col-12">
+          <label class="form-label fw-semibold">Producto</label>
+          <select class="form-select form-select-lg" [(ngModel)]="item.product">
+            <option [ngValue]="null">-- Seleccionar --</option>
+            <option *ngFor="let p of products" [ngValue]="p">{{ p.name }} - {{ p.price | currency:'COP':'symbol-narrow':'1.0-0' }}</option>
+          </select>
+        </div>
+        <div class="col-6">
+          <label class="form-label">Cantidad</label>
+          <input type="number" class="form-control form-control-lg text-center" [(ngModel)]="item.quantity" min="1">
+        </div>
+        <div class="col-6 text-end">
+          <button class="btn btn-outline-danger btn-lg" (click)="removeItemRow(i)" *ngIf="newItems.length > 1">
+            <i class="pi pi-trash"></i>
+          </button>
+        </div>
+        <!-- Sabores si es pizza -->
+        <div class="col-12" *ngIf="isPizzaItem(item)">
+          <label class="form-label"><i class="pi pi-star me-1"></i>Sabores (máx. 2)</label>
+          <p-multiSelect [options]="availableFlavors" [(ngModel)]="item.flavors" optionLabel="name"
+                         placeholder="Seleccionar sabores" [selectionLimit]="2" [showToggleAll]="false"
+                         styleClass="w-100" (onChange)="onItemFlavorsChange(item)"
+                         appendTo="body">
+          </p-multiSelect>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-outline-secondary w-100 mb-3" (click)="addNewItemRow()">
+      <i class="pi pi-plus me-2"></i>Agregar otro producto
+    </button>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="d-flex gap-2 justify-content-end">
+      <button class="btn btn-secondary btn-lg" (click)="showAddProductsDialog = false">Cancelar</button>
+      <button class="btn btn-primary btn-lg" (click)="submitAddProducts()">
+        <i class="pi pi-check me-2"></i>Confirmar
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-toast position="top-center"></p-toast>
+<p-confirmDialog header="Confirmar Pago" icon="pi pi-credit-card"></p-confirmDialog>

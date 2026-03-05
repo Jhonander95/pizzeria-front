@@ -5,26 +5,100 @@
   border-radius: 8px;
 }
 
-.card {
-  background-color: #ffffff; /* Fondo blanco para las tarjetas */
-  color: #000000; /* Texto negro */
-  border: 1px solid #dee2e6;
+.product-card {
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-radius: 12px;
+  min-height: 180px;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+  
+  &:active {
+    transform: scale(0.97);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+}
+
+.products-grid {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.cart-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-items {
+  flex: 1;
+  max-height: calc(100vh - 350px);
+  overflow-y: auto;
+}
+
+.cart-item {
+  border-left: 4px solid #007bff;
   border-radius: 8px;
 }
 
-.card-header {
-  background-color: #f8f9fa; /* Fondo claro para el encabezado */
-  color: #000000; /* Texto negro */
+.quantity-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  
+  &:active {
+    transform: scale(0.9);
+  }
 }
 
-.card-body {
-  color: #000000; /* Contenido negro */
+.total-section {
+  border: 2px dashed #28a745;
+}
+
+.btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+}
+
+/* Navbar táctil */
+.navbar {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .products-grid {
+    max-height: 50vh;
+  }
+  
+  .cart-items {
+    max-height: 40vh;
+  }
+}
+
+:host ::ng-deep {
+  .p-multiselect {
+    width: 100%;
+  }
+  
+  .p-multiselect-panel {
+    max-height: 250px;
+  }
 }
 
 .btn-primary {
   background-color: #007bff; /* Botón azul */
   border-color: #007bff;
   color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
 }
 
 .btn-primary:hover {
@@ -36,6 +110,8 @@
   background-color: #dc3545; /* Botón rojo */
   border-color: #dc3545;
   color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
 }
 
 .btn-danger:hover {

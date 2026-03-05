@@ -35,4 +35,28 @@ export class SalesService {
     };
     return this.http.get<any[]>(`${this.apiUrl}`, { headers, params });
   }
+
+  getOpenOrders(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}?status=open`);
+  }
+
+  getTodayOrders(): Observable<any[]> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+    const params = {
+      startDate: today.toISOString(),
+      endDate: endOfDay.toISOString()
+    };
+    return this.http.get<any[]>(`${this.apiUrl}`, { params });
+  }
+
+  payOrder(id: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/pay`, {});
+  }
+
+  addProductsToOrder(orderId: number, payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${orderId}/products`, payload);
+  }
 }

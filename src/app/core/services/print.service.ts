@@ -60,32 +60,55 @@ export class PrintService {
   }
 
   private generateReceiptHTML(cart: CartItem[], total: number, orderId: string): string {
-    const date = new Date().toLocaleString();
+    const date = new Date().toLocaleString('es-CO', {
+      dateStyle: 'short',
+      timeStyle: 'short'
+    });
     
     let receiptHTML = `
       <div class="header">
         <h2>PIZZERIA</h2>
+        <p>================================</p>
         <p>Orden #${orderId}</p>
         <p>${date}</p>
+        <p>================================</p>
       </div>
     `;
 
     cart.forEach(item => {
       const itemTotal = item.product.price * item.quantity;
+      const isPizza = item.product.category?.toUpperCase() === 'PIZZA';
+      
       receiptHTML += `
         <div class="item">
-          <p>${item.product.name}</p>
-          <p>${item.quantity} x $${this.formatPrice(item.product.price)} = $${this.formatPrice(itemTotal)}</p>
+          <p><strong>${item.quantity}x ${item.product.name}</strong></p>
+      `;
+      
+      // Mostrar sabores si es pizza y tiene sabores seleccionados
+      if (isPizza && item.flavors && item.flavors.length > 0) {
+        const flavorNames = item.flavors.map(f => f.name).join(', ');
+        receiptHTML += `
+          <p style="font-size: 0.9em; margin-left: 10px;">
+            ★ Sabores: ${flavorNames}
+          </p>
+        `;
+      }
+      
+      receiptHTML += `
+          <p style="text-align: right;">$${this.formatPrice(itemTotal)}</p>
         </div>
       `;
     });
 
     receiptHTML += `
       <div class="total">
-        <p>TOTAL: $${this.formatPrice(total)}</p>
+        <p>================================</p>
+        <p style="font-size: 1.2em;"><strong>TOTAL: $${this.formatPrice(total)}</strong></p>
+        <p>================================</p>
       </div>
       <div class="footer">
         <p>¡Gracias por su compra!</p>
+        <p style="font-size: 0.8em;">Conserve este recibo</p>
       </div>
     `;
 

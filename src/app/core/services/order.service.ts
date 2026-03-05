@@ -14,11 +14,23 @@ export class OrderService {
   constructor(private http: HttpClient) {}
 
   createPurchase(cart: CartItem[]): Observable<any> {
+    const products = cart.map(item => {
+      const productPayload: any = {
+        product: { id: item.product.id },
+        quantity: item.quantity
+      };
+      if (item.flavors && item.flavors.length > 0) {
+        productPayload.flavor_count = item.flavor_count || item.flavors.length;
+        productPayload.flavors = item.flavors.map(f => ({ id: f.id }));
+      }
+      return productPayload;
+    });
+
     const purchase = {
-      products: cart,
+      products,
       total: cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0)
     };
-    console.log(purchase);
+    console.log('Payload enviado:', purchase);
     
     return this.http.post(this.apiUrl, purchase);
   }

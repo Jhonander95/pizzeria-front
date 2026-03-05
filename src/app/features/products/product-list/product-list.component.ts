@@ -2,21 +2,28 @@ import { Component, OnInit } from '@angular/core';
 import { Product } from '../../../core/models/product.model';
 import { ProductService } from '../../../core/services/product.service';
 import { NgFor, CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { ListboxModule } from 'primeng/listbox';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { OrderService } from '../../../core/services/order.service';
 import { PrintService } from '../../../core/services/print.service';
+import { FlavorService } from '../../../core/services/flavor.service';
+import { Flavor } from '../../../core/models/flavor.model';
 
 export interface CartItem {
   product: Product;
   quantity: number;
+  flavors?: Flavor[];
+  flavor_count?: number;
 }
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [NgFor, CardModule, ButtonModule, ListboxModule, CommonModule],
+  imports: [NgFor, CardModule, ButtonModule, ListboxModule, CommonModule, RouterModule, FormsModule, MultiSelectModule],
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss'
 })
@@ -25,11 +32,13 @@ export class ProductListComponent implements OnInit {
   cart: CartItem[] = [];
   imageUrl: string = "";
   total: number = 0;
+  availableFlavors: Flavor[] = [];
 
   constructor(
     public productService: ProductService,
     private orderService: OrderService,
-    private printService: PrintService
+    private printService: PrintService,
+    private flavorService: FlavorService
   ) {}
 
   ngOnInit() {
@@ -38,17 +47,36 @@ export class ProductListComponent implements OnInit {
       console.log(data);
       console.log(this.products);
     });
+    this.flavorService.getFlavors().subscribe((data) => {
+      this.availableFlavors = data.filter(f => f.status !== false);
+    });
   }
 
   addToCart(product: Product) {
-    const cartItem = this.cart.find(item => item.product.id === product.id);
-    if (cartItem) {
-      cartItem.quantity++;
+    const isPizza = product.category?.toUpperCase() === 'PIZZA';
+    if (isPizza) {
+      this.cart.push({ product, quantity: 1, flavors: [], flavor_count: 0 });
     } else {
-      this.cart.push({ product, quantity: 1 });
+      const cartItem = this.cart.find(item => item.product.id === product.id);
+      if (cartItem) {
+        cartItem.quantity++;
+      } else {
+        this.cart.push({ product, quantity: 1 });
+      }
     }
     this.calculateTotal();
     console.log(this.cart);
+  }
+
+  onFlavorsChange(item: CartItem) {
+    if (item.flavors && item.flavors.length > 2) {
+      item.flavors = item.flavors.slice(0, 2);
+    }
+    item.flavor_count = item.flavors?.length || 0;
+  }
+
+  isPizza(item: CartItem): boolean {
+    return item.product.category?.toUpperCase() === 'PIZZA';
   }
 
   removeFromCart(product: Product) {
@@ -85,10 +113,7 @@ export class ProductListComponent implements OnInit {
 
   buy() {
     this.orderService.createPurchase(this.cart).subscribe(response => {
-      console.log('Compra creada:', response);
-      
-      // Imprimir el recibo
-      this.printService.printReceipt(this.cart, this.total, response.id);
+      console.log('Orden creada:', response);
       
       // Limpiar el carrito
       this.cart = [];
