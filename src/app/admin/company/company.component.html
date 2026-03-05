@@ -1,0 +1,73 @@
+<p-toast></p-toast>
+
+<div class="container mt-4">
+  <p-card header="Configuración de Empresa" styleClass="shadow">
+    <div *ngIf="loading" class="text-center py-5">
+      <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+      <p class="mt-2">Cargando datos...</p>
+    </div>
+
+    <form [formGroup]="companyForm" (ngSubmit)="save()" *ngIf="!loading">
+      <div class="row g-4">
+        <!-- Nombre -->
+        <div class="col-12 col-md-6">
+          <label class="form-label fw-semibold">
+            <i class="pi pi-building me-2"></i>Nombre de la Empresa *
+          </label>
+          <input type="text" pInputText formControlName="name" class="w-100" placeholder="Ej: Pizzería Demo">
+          <small class="text-danger" *ngIf="companyForm.get('name')?.invalid && companyForm.get('name')?.touched">
+            El nombre es requerido
+          </small>
+        </div>
+
+        <!-- Logo -->
+        <div class="col-12 col-md-6">
+          <label class="form-label fw-semibold">
+            <i class="pi pi-image me-2"></i>Logo (URL)
+          </label>
+          <input type="text" pInputText formControlName="logo" class="w-100" placeholder="https://ejemplo.com/logo.png">
+        </div>
+
+        <!-- Dirección -->
+        <div class="col-12 col-md-6">
+          <label class="form-label fw-semibold">
+            <i class="pi pi-map-marker me-2"></i>Dirección
+          </label>
+          <input type="text" pInputText formControlName="address" class="w-100" placeholder="Calle 123 #45-67">
+        </div>
+
+        <!-- Teléfono -->
+        <div class="col-12 col-md-6">
+          <label class="form-label fw-semibold">
+            <i class="pi pi-phone me-2"></i>Teléfono
+          </label>
+          <input type="text" pInputText formControlName="phone" class="w-100" placeholder="3001234567">
+        </div>
+
+        <!-- Horario -->
+        <div class="col-12">
+          <label class="form-label fw-semibold">
+            <i class="pi pi-clock me-2"></i>Horario de Atención
+          </label>
+          <textarea pTextarea formControlName="schedule" rows="3" class="w-100" 
+                    placeholder="Lunes a Viernes: 12:00 - 22:00&#10;Sábados y Domingos: 11:00 - 23:00"></textarea>
+        </div>
+
+        <!-- Preview del logo -->
+        <div class="col-12" *ngIf="companyForm.get('logo')?.value">
+          <label class="form-label fw-semibold">Vista previa del logo:</label>
+          <div class="logo-preview p-3 bg-light rounded text-center">
+            <img [src]="companyForm.get('logo')?.value" alt="Logo" class="img-fluid" style="max-height: 100px;">
+          </div>
+        </div>
+
+        <!-- Botón guardar -->
+        <div class="col-12">
+          <button pButton type="submit" label="Guardar Cambios" icon="pi pi-save" 
+                  class="p-button-success p-button-lg w-100" [loading]="saving">
+          </button>
+        </div>
+      </div>
+    </form>
+  </p-card>
+</div>

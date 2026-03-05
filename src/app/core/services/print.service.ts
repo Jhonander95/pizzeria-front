@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CartItem } from '../../features/products/product-list/product-list.component';
+import { Company } from '../models/company.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,15 @@ export class PrintService {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     });
+  }
+
+  private getCompanyData(): Company | null {
+    try {
+      const data = localStorage.getItem('companyData');
+      return data ? JSON.parse(data) : null;
+    } catch {
+      return null;
+    }
   }
 
   printReceipt(cart: CartItem[], total: number, orderId: string): void {
@@ -60,14 +70,23 @@ export class PrintService {
   }
 
   private generateReceiptHTML(cart: CartItem[], total: number, orderId: string): string {
+    const company = this.getCompanyData();
     const date = new Date().toLocaleString('es-CO', {
       dateStyle: 'short',
       timeStyle: 'short'
     });
     
+    const companyName = company?.name || 'PIZZERIA';
+    const companyAddress = company?.address || '';
+    const companyPhone = company?.phone || '';
+    const companySchedule = company?.schedule || '';
+    
     let receiptHTML = `
       <div class="header">
-        <h2>PIZZERIA</h2>
+        ${company?.logo ? `<img src="${company.logo}" alt="Logo" style="max-width: 80px; max-height: 80px; margin-bottom: 10px;">` : ''}
+        <h2>${companyName.toUpperCase()}</h2>
+        ${companyAddress ? `<p style="font-size: 0.85em; margin: 2px 0;">${companyAddress}</p>` : ''}
+        ${companyPhone ? `<p style="font-size: 0.85em; margin: 2px 0;">Tel: ${companyPhone}</p>` : ''}
         <p>================================</p>
         <p>Orden #${orderId}</p>
         <p>${date}</p>
@@ -108,6 +127,7 @@ export class PrintService {
       </div>
       <div class="footer">
         <p>¡Gracias por su compra!</p>
+        ${companySchedule ? `<p style="font-size: 0.75em; margin-top: 10px;">Horario: ${companySchedule}</p>` : ''}
         <p style="font-size: 0.8em;">Conserve este recibo</p>
       </div>
     `;

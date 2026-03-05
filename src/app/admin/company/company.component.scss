@@ -1,0 +1,9 @@
+.logo-preview {
+  border: 2px dashed #dee2e6;
+}
+
+:host ::ng-deep {
+  .p-inputtext, .p-inputtextarea {
+    width: 100%;
+  }
+}

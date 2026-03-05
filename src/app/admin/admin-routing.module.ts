@@ -5,6 +5,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { ProductsComponent } from './products/products.component';
 import { SalesReportComponent } from './sales-report/sales-report.component';
 import { FlavorsComponent } from './flavors/flavors.component';
+import { CompanyComponent } from './company/company.component';
 import { AuthGuard } from '../core/guards/auth.guard';
 
 const routes: Routes = [
@@ -17,6 +18,7 @@ const routes: Routes = [
       { path: 'products', component: ProductsComponent },
       { path: 'sales', component: SalesReportComponent },
       { path: 'flavors', component: FlavorsComponent },
+      { path: 'company', component: CompanyComponent },
       { path: '', redirectTo: 'products', pathMatch: 'full' }
     ]
   },
